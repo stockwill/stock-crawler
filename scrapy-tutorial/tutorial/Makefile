@@ -1,7 +1,7 @@
 .PHONY: all
 
 all:
-	scrapy crawl quotes
+	scrapy crawl quotes -o quotes.json
 
 shell:
 	scrapy shell 'http://quotes.toscrape.com/page/1/'
