@@ -12,6 +12,7 @@ class AuthorSpider(scrapy.Spider):
         for href in response.css('li.next a::attr(href)'):
             yield response.follow(href, self.parse)
 
+    # Another interesting thing this spider demonstrates is that, even if there are many quotes from the same author, we don’t need to worry about visiting the same author page multiple times. By default, Scrapy filters out duplicated requests to URLs already visited, avoiding the problem of hitting servers too much because of a programming mistake.
     def parse_author(self, response):
         def extract_with_css(query):
             return response.css(query).get(default='').strip()
