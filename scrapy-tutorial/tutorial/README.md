@@ -1,6 +1,10 @@
 [Tutorial](https://docs.scrapy.org/en/latest/intro/tutorial.html)
 
+# View
 
+[Using developer tools in the browser](https://docs.scrapy.org/en/latest/topics/developer-tools.html#topics-developer-tools)
+
+[SelectGadget chrome extension](https://chrome.google.com/webstore/detail/selectorgadget/mhjhnkcfbdhnjickkkdbjoemdmbfginb)
 
 # Further Reading
 
@@ -11,3 +15,17 @@
 
 
 [More on reddit wiki](https://www.reddit.com/r/learnpython/wiki/index#wiki_new_to_python.3F)
+
+## XPath
+
+[Learn XPath](https://docs.scrapy.org/en/latest/intro/tutorial.html#xpath-a-brief-intro)
+
+## Extracting
+
+```
+response.css('.author::text')[0].get()
+```
+
+```
+response.css('.tag::text')[0].get()
+```
