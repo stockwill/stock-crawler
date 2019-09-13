@@ -1,8 +1,10 @@
 .PHONY: all
 
+JSON=quotes.json
+
 all:
-	rm quotes.json
-	scrapy crawl quotes -o quotes.json
+	rm $(JSON)
+	scrapy crawl quotes -o $(JSON)
 
 shell:
 	scrapy shell 'http://quotes.toscrape.com/page/1/'

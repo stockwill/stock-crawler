@@ -29,3 +29,9 @@ response.css('.author::text')[0].get()
 ```
 response.css('.tag::text')[0].get()
 ```
+
+```
+response.css('ul.pager a::attr(href)').get()
+response.css('li.next a::attr(href)').get()
+response.css('li.next a').attrib['href']
+```
