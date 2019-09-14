@@ -1,3 +1,5 @@
+.PHONY: all install freeze twstock
+
 all:
 
 install:
@@ -6,3 +8,6 @@ install:
 
 freeze:
 	pip freeze > requirements.txt
+
+twstock:
+	scrapy startproject twstock
