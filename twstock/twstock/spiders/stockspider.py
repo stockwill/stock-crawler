@@ -5,6 +5,8 @@ from time import gmtime, strftime
 from .parse import format_time_at
 from .stocks import get_co_ids
 
+debug = False
+
 
 class StockSpider(scrapy.Spider):
     name = 'stock'
@@ -15,7 +17,7 @@ class StockSpider(scrapy.Spider):
     # https://doc.scrapy.org/en/latest/topics/request-response.html
     def parse(self, response):
         for co_id in get_co_ids():
-            fordata = {
+            formdata = {
                 'co_id': co_id,
                 'encodeURIComponent': '1',
                 'step': '1',
@@ -32,18 +34,17 @@ class StockSpider(scrapy.Spider):
             # https://doc.scrapy.org/en/latest/topics/request-response.html
             request = scrapy.FormRequest(
                 url='https://mops.twse.com.tw/mops/web/ajax_t146sb05',
-                formdata=fordata,
+                formdata=formdata,
                 callback=self.after_submit,
                 cb_kwargs=dict(co_id=co_id)
             )
-
 
             yield request
 
     def after_submit(self, response, co_id):
         # self.write_page(response) # For debug
 
-        fordata = {
+        formdata = {
             'co_id': co_id,
             'encodeURIComponent': '1',
             'step': '1',
@@ -62,7 +63,7 @@ class StockSpider(scrapy.Spider):
         # 最近五年股利分派情形
         return scrapy.FormRequest(
             url='https://mops.twse.com.tw/mops/web/ajax_t05st09_2',
-            formdata=fordata,
+            formdata=formdata,
             callback=self.handle_eps,
             cb_kwargs=dict(co_id=co_id)
         )
@@ -75,7 +76,8 @@ class StockSpider(scrapy.Spider):
         self.log("Writ to file %s" % filename)
 
     def handle_eps(self, response, co_id):
-        # self.write_page(response) # For debug
+        if debug:
+            self.write_page(response)  # For debug
         formatted_body = response.body.decode("utf-8").replace("TABLE", "table")
         formatted_body = formatted_body.replace("TH", "th")
         formatted_body = formatted_body.replace("TR", "tr")
@@ -84,7 +86,20 @@ class StockSpider(scrapy.Spider):
         data = pd.read_html(formatted_body, skiprows=0, encoding='big5')
         df = data[2]
 
-        # df.to_csv(co_id + "-dividend-full.csv", index=False) # For debug
+        wanted_cols = [['股利所屬年(季)度', 'time', -1, '', format_time_at],
+                       ['盈餘分配之現金股利(元/股)', 'cash', -1, '0', lambda x: x],
+                       ['盈餘轉增資配股(元/股)', 'stock', -1, '0', lambda x: x]]
+
+        # print('columns: ', df.columns)
+        for pos_cols, cols in enumerate(df.columns):
+            for pos_wanted_cols, w in enumerate(wanted_cols):
+                # print('w: ', w, 'cols: ', cols)
+                if w[0] == cols[1]:
+                    wanted_cols[pos_wanted_cols][2] = pos_cols
+                    break
+
+        if debug:
+            df.to_csv(co_id + "-dividend-full.csv", index=False)
 
         meta_data = {
             "1. Information": "Time Series for Dividend",
@@ -95,11 +110,25 @@ class StockSpider(scrapy.Spider):
 
         rows = []
         for index, row in df.iterrows():
-            time_at = format_time_at(row[df.columns[1]])
-            dividend = row[df.columns[10]]
-            rows.append([time_at, dividend])
+            vals = []
 
-        dividend_df = pd.DataFrame(rows, columns=['time', 'dividend'])
+
+            for pos_wanted_cols, wanted_col in enumerate(wanted_cols):
+                vals.append(wanted_col[3])
+                wanted_col_pos = wanted_col[2]
+                # print('vals: ', vals, ' pos_wanted_cols: ', pos_wanted_cols)
+                if wanted_col_pos != -1:
+                    f = wanted_col[4]
+                    original_data = row[df.columns[wanted_col_pos]]
+                    vals[pos_wanted_cols] = f(original_data)
+
+            rows.append(vals)
+
+        columns = []
+        for wanted_col in wanted_cols:
+            columns.append(wanted_col[1])
+
+        dividend_df = pd.DataFrame(rows, columns=columns)
         dividend_path = co_id + "-dividend.csv"
         dividend_df.to_csv(co_id + "-dividend.csv", index=False)
 
