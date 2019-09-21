@@ -6,6 +6,7 @@ from .parse import format_time_at
 from .stocks import get_co_ids
 
 debug = False
+data_dir = "data/"
 
 
 class StockSpider(scrapy.Spider):
@@ -70,7 +71,7 @@ class StockSpider(scrapy.Spider):
 
     def write_page(self, response):
         page = response.url.split("/")[-1]
-        filename = '%s.html' % page
+        filename = data_dir + '%s.html' % page
         with open(filename, 'wb') as f:
             f.write(response.body)
         self.log("Writ to file %s" % filename)
@@ -99,7 +100,7 @@ class StockSpider(scrapy.Spider):
                     break
 
         if debug:
-            df.to_csv(co_id + "-dividend-full.csv", index=False)
+            df.to_csv(data_dir + co_id + "-dividend-full.csv", index=False)
 
         meta_data = {
             "1. Information": "Time Series for Dividend",
@@ -129,8 +130,8 @@ class StockSpider(scrapy.Spider):
             columns.append(wanted_col[1])
 
         dividend_df = pd.DataFrame(rows, columns=columns)
-        dividend_path = co_id + "-dividend.csv"
-        dividend_df.to_csv(co_id + "-dividend.csv", index=False)
+        dividend_path = data_dir + co_id + "-dividend.csv"
+        dividend_df.to_csv(dividend_path, index=False)
 
         yield {
             "meta_data": meta_data,

@@ -13,4 +13,4 @@ stock:
 	scrapy crawl stock -o $(STOCK_JSON)
 
 clean:
-	rm -f *.csv *.html
+	rm -f data/*
