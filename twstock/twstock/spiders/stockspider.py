@@ -85,7 +85,7 @@ class StockSpider(scrapy.Spider):
         df.to_csv("2330-eps.csv", index=False)
 
         meta_data = {
-            "1. Information": "Time Series for Dividend Amount",
+            "1. Information": "Time Series for Dividend",
             "2. Symbol": "TW:2330",
             "3. Last Refreshed": strftime("%Y-%m-%d %H:%M:%S", gmtime()),
             "4. Time Zone": 'UTC',
@@ -106,9 +106,9 @@ class StockSpider(scrapy.Spider):
         for index, row in df.iterrows():
 
             time_at = format_time_at(row[df.columns[1]])
-            dividend_amount = row[df.columns[10]]
-            print("index: ", index, "time at: ", time_at, "dividend amount: ", dividend_amount)
-            series.update({time_at: dividend_amount})
+            dividend = row[df.columns[10]]
+            print("index: ", index, "time at: ", time_at, "dividend: ", dividend)
+            series.update({time_at: dividend})
 
         time_series = {
             "Time Series": series
