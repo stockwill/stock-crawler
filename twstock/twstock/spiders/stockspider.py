@@ -87,8 +87,8 @@ class StockSpider(scrapy.Spider):
         df = data[2]
 
         wanted_cols = [['股利所屬年(季)度', 'time', -1, '', format_time_at],
-                       ['盈餘分配之現金股利(元/股)', 'cash', -1, '0', lambda x: x],
-                       ['盈餘轉增資配股(元/股)', 'stock', -1, '0', lambda x: x]]
+                       ['盈餘分配之現金股利(元/股)', 'cash', -1, '0.0', lambda x: x],
+                       ['盈餘轉增資配股(元/股)', 'stock', -1, '0.0', lambda x: x]]
 
         # print('columns: ', df.columns)
         for pos_cols, cols in enumerate(df.columns):

@@ -11,3 +11,6 @@ STOCK_JSON=stock.json
 stock:
 	$(RM) $(STOCK_JSON)
 	scrapy crawl stock -o $(STOCK_JSON)
+
+clean:
+	rm -f *.csv *.html

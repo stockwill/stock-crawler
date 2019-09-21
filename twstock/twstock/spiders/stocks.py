@@ -9,6 +9,6 @@
 # https://www.cnyes.com/twstock/Etfingredient/0050.html
 # https://web.archive.org/web/20100208100742/http://www.twse.com.tw/ch/trading/indices/twco/tai50i.php
 
+
 def get_co_ids():
-    # return ['2330', '2412']
-    return ['1101']
+    return ['1101', '2330', '2412']

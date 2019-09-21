@@ -1,3 +1,5 @@
 [
-{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:1101", "3. Last Refreshed": "2019-09-21 16:51:18", "4. Time Zone": "UTC"}, "dividend": "1101-dividend.csv"}
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:2412", "3. Last Refreshed": "2019-09-21 16:55:14", "4. Time Zone": "UTC"}, "dividend": "2412-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:2330", "3. Last Refreshed": "2019-09-21 16:55:14", "4. Time Zone": "UTC"}, "dividend": "2330-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:1101", "3. Last Refreshed": "2019-09-21 16:55:14", "4. Time Zone": "UTC"}, "dividend": "1101-dividend.csv"}
 ]
