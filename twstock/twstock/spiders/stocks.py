@@ -8,9 +8,10 @@ co_ids = ['1101', '1102', '1216', '1301', '1303', '1326', '1402', '2002', '2105'
 # http://pchome.megatime.com.tw/group/mkt5/cidE002.html
 # https://www.cnyes.com/twstock/Etfingredient/0050.html
 # https://web.archive.org/web/20100208100742/http://www.twse.com.tw/ch/trading/indices/twco/tai50i.php
-
+# https://www.taiwanindex.com.tw/index/index/TW50
+# https://www.twse.com.tw/zh/
 
 def get_co_ids():
     # return ['1101']
-    return ['1101', '2330', '2412']
-    # return co_ids
+    # return ['1101', '2330', '2412']
+    return co_ids
