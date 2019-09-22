@@ -16,9 +16,10 @@ class FinancialReportSpider(scrapy.Spider):
 
     def start_requests(self):
         for co_id in get_co_ids():
-            yield self.create_request(co_id, 2017, 4, [])
+            yield self.create_request(co_id, 2019, 2, [])
 
     def create_request(self, co_id, year, season, rows):
+        parse_method = self.parse_new_ifrs if year >= 2019 else self.parse_older_ifrs
         params = {
             'step': 1,
             'CO_ID': co_id,
@@ -29,7 +30,7 @@ class FinancialReportSpider(scrapy.Spider):
         url = 'https://mops.twse.com.tw/server-java/t164sb01?' + parse.urlencode(params)
         # print('url: ', url)
         return scrapy.Request(url=url,
-                              callback=self.parse_older_ifrs,
+                              callback=parse_method,
                               cb_kwargs=dict(co_id=co_id, year=year, season=season, rows=rows))
 
     # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2018&SSEASON=2&REPORT_ID=C
@@ -48,6 +49,7 @@ class FinancialReportSpider(scrapy.Spider):
             self.logger.warning('No table found')
             self.write_eps_file(rows, co_id)
             return
+
         if len(data) < 3:
             self.logger.warning('No data found')
             self.write_eps_file(rows, co_id)
@@ -74,6 +76,7 @@ class FinancialReportSpider(scrapy.Spider):
             return
 
         vals.append(eps)
+        print('vals: ', vals)
         rows.append(vals)
 
         if follow:
@@ -82,7 +85,7 @@ class FinancialReportSpider(scrapy.Spider):
         else:
             self.write_eps_file(rows, co_id)
 
-    def callback(self, response, co_id, year, season, rows):
+    def parse_new_ifrs(self, response, co_id, year, season, rows):
         if debug:
             write_page(response)
 
@@ -105,9 +108,19 @@ class FinancialReportSpider(scrapy.Spider):
                 vals.append(eps)
                 found = True
                 break
+
+        # FIXME: Should not happen
         if not found:
             self.logger.warning('No eps found')
-            self.write_eps_file(rows, co_id)
+            # self.write_eps_file(rows, co_id)
+            # self.parse_older_ifrs(response, co_id, year, season, rows)
+            # yield self.create_request(co_id, year, season, rows, self.parse_older_ifrs)
+
+            # FIXME: This not work. It doesn't get called
+            # self.parse_older_ifrs(response, co_id, year, season, rows)
+
+            # print(vals[3])
+
             return
 
         print('vals: ', vals)
