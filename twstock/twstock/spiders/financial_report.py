@@ -15,9 +15,9 @@ class FinancialReportSpider(scrapy.Spider):
 
     def start_requests(self):
         for co_id in get_co_ids():
-            yield self.create_request(co_id, 2019, 3)
+            yield self.create_request(co_id, 2019, 2, [])
 
-    def create_request(self, co_id, year, season):
+    def create_request(self, co_id, year, season, rows):
         params = {
             'step': 1,
             'CO_ID': co_id,
@@ -29,9 +29,9 @@ class FinancialReportSpider(scrapy.Spider):
         # print('url: ', url)
         return scrapy.Request(url=url,
                               callback=self.callback,
-                              cb_kwargs=dict(co_id=co_id, year=year, season=season))
+                              cb_kwargs=dict(co_id=co_id, year=year, season=season, rows=rows))
 
-    def callback(self, response, co_id, year, season):
+    def callback(self, response, co_id, year, season, rows):
         if debug:
             write_page(response)
 
@@ -39,6 +39,7 @@ class FinancialReportSpider(scrapy.Spider):
             data = pd.read_html(response.body, skiprows=0, encoding='UTF-8')
         except ValueError:
             self.logger.warning('No table found')
+            self.write_eps_file(rows, co_id)
             return
 
         df = data[1]
@@ -46,21 +47,36 @@ class FinancialReportSpider(scrapy.Spider):
             df.to_csv(get_data_dir() + co_id + "-financial-full.csv", index=False)
 
         vals = ["%d Q%d" % (year, season)]
+        found = False
         for index, row in df.iterrows():
             if row[df.columns[0]] == 9750.0:
                 eps = row[df.columns[2]]
-                # print('eps: ', eps)
                 vals.append(eps)
+                found = True
+                break
+        if not found:
+            self.logger.warning('No eps found')
+            self.write_eps_file(rows, co_id)
+            return
 
-        rows = [vals]
-        # print('rows: ', rows)
-        eps_df = pd.DataFrame(rows, columns=["time", "eps"])
-        eps_path = get_data_dir() + co_id + "-eps.csv"
-        eps_df.to_csv(eps_path, index=False)
+        print('vals: ', vals)
 
-        yield {
-            "eps": eps_path,
-        }
+        # yield { "eps": eps_path, }
+        next_year, next_season = self.get_previous_season(year, season)
+        rows.append(vals)
+        yield self.create_request(co_id, next_year, next_season, rows)
 
     def parse(self, response):
         pass
+
+    @staticmethod
+    def get_previous_season(year, season):
+        if season == 1:
+            return year - 1, 4
+        return year, season - 1
+
+    @staticmethod
+    def write_eps_file(rows, co_id):
+        eps_df = pd.DataFrame(rows, columns=["time", "eps"])
+        eps_path = get_data_dir() + co_id + "-eps.csv"
+        eps_df.to_csv(eps_path, index=False)
