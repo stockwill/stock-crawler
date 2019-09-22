@@ -2,21 +2,20 @@
 import scrapy
 import pandas as pd
 from time import gmtime, strftime
-from .parse import format_time_at
+from .parse import reformat_html_for_table, format_time_at
 from .stocks import get_co_ids
+from .utils import write_page, get_data_dir
 
 debug = False
-data_dir = "data/"
 
 
 class StockSpider(scrapy.Spider):
     name = 'stock'
     allowed_domains = ['mops.twse.com.tw']
-    start_urls = ['https://mops.twse.com.tw/mops/web/t146sb05']
 
     # https://www.youtube.com/watch?v=Lo3aswJ7lzw
     # https://doc.scrapy.org/en/latest/topics/request-response.html
-    def parse(self, response):
+    def start_requests(self):
         for co_id in get_co_ids():
             formdata = {
                 'co_id': co_id,
@@ -43,7 +42,8 @@ class StockSpider(scrapy.Spider):
             yield request
 
     def after_submit(self, response, co_id):
-        # self.write_page(response) # For debug
+        if debug:
+            write_page(response)
 
         formdata = {
             'co_id': co_id,
@@ -69,20 +69,13 @@ class StockSpider(scrapy.Spider):
             cb_kwargs=dict(co_id=co_id)
         )
 
-    def write_page(self, response):
-        page = response.url.split("/")[-1]
-        filename = data_dir + '%s.html' % page
-        with open(filename, 'wb') as f:
-            f.write(response.body)
-        self.log("Writ to file %s" % filename)
+    def parse(self, response):
+        pass
 
     def handle_eps(self, response, co_id):
         if debug:
-            self.write_page(response)  # For debug
-        formatted_body = response.body.decode("utf-8").replace("TABLE", "table")
-        formatted_body = formatted_body.replace("TH", "th")
-        formatted_body = formatted_body.replace("TR", "tr")
-        formatted_body = formatted_body.replace("TD", "td")
+            write_page(response)
+        formatted_body = reformat_html_for_table(response)
 
         data = pd.read_html(formatted_body, skiprows=0, encoding='big5')
         df = data[2]
@@ -100,7 +93,7 @@ class StockSpider(scrapy.Spider):
                     break
 
         if debug:
-            df.to_csv(data_dir + co_id + "-dividend-full.csv", index=False)
+            df.to_csv(get_data_dir() + co_id + "-dividend-full.csv", index=False)
 
         meta_data = {
             "1. Information": "Time Series for Dividend",
@@ -112,7 +105,6 @@ class StockSpider(scrapy.Spider):
         rows = []
         for index, row in df.iterrows():
             vals = []
-
 
             for pos_wanted_cols, wanted_col in enumerate(wanted_cols):
                 vals.append(wanted_col[3])
@@ -129,8 +121,9 @@ class StockSpider(scrapy.Spider):
         for wanted_col in wanted_cols:
             columns.append(wanted_col[1])
 
+        # print('rows: ', rows, ' columns: ', columns)
         dividend_df = pd.DataFrame(rows, columns=columns)
-        dividend_path = data_dir + co_id + "-dividend.csv"
+        dividend_path = get_data_dir() + co_id + "-dividend.csv"
         dividend_df.to_csv(dividend_path, index=False)
 
         yield {
