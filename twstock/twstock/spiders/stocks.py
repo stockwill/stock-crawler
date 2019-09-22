@@ -12,6 +12,7 @@ co_ids = ['1101', '1102', '1216', '1301', '1303', '1326', '1402', '2002', '2105'
 # https://www.twse.com.tw/zh/
 
 def get_co_ids():
-    return ['2330']
+    # return ['2330']
+    return ['2227']
     # return ['1101', '2330', '2412']
     # return co_ids

@@ -7,6 +7,7 @@ from .stocks import get_co_ids
 from .parse import reformat_html_for_table
 
 debug = False
+follow = True
 
 
 # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2019&SSEASON=2&REPORT_ID=C
@@ -17,6 +18,7 @@ class FinancialReportSpider(scrapy.Spider):
     def start_requests(self):
         for co_id in get_co_ids():
             yield self.create_request(co_id, 2019, 2, [])
+            # yield self.create_request(co_id, 2017, 4, [])
             # yield self.create_request(co_id, 2013, 1, [])
 
     def create_request(self, co_id, year, season, rows):
@@ -37,7 +39,6 @@ class FinancialReportSpider(scrapy.Spider):
     # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2018&SSEASON=2&REPORT_ID=C
     # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2012&SSEASON=2&REPORT_ID=C
     def parse_older_ifrs(self, response, co_id, year, season, rows):
-        follow = True
         eps_index_heading = b'\xef\xbf\xbd@\xef\xbf\xbd@ \xef\xbf\xbd\xf2\xa5\xbb\xa8C\xef\xbf\xbd\xd1\xac\xd5\xbel\xef\xbf\xbdX\xef\xbf\xbdp'.decode(
             'utf-8')
 

@@ -7,4 +7,7 @@ source ./venv/bin/activate
 
 # TODO
 
+EPS for 2207
+
 [除權息日](https://mops.twse.com.tw/mops/web/t108sb19_q1)
+
