@@ -2,7 +2,7 @@
 import scrapy
 import pandas as pd
 from urllib import parse
-from .utils import write_page, get_data_dir
+from .utils import write_page, get_data_dir, get_meta_data
 from .stocks import get_co_ids
 from .parse import reformat_html_for_table
 
@@ -17,6 +17,7 @@ class FinancialReportSpider(scrapy.Spider):
     def start_requests(self):
         for co_id in get_co_ids():
             yield self.create_request(co_id, 2019, 2, [])
+            # yield self.create_request(co_id, 2013, 1, [])
 
     def create_request(self, co_id, year, season, rows):
         parse_method = self.parse_new_ifrs if year >= 2019 else self.parse_older_ifrs
@@ -37,7 +38,8 @@ class FinancialReportSpider(scrapy.Spider):
     # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2012&SSEASON=2&REPORT_ID=C
     def parse_older_ifrs(self, response, co_id, year, season, rows):
         follow = True
-        eps_index_heading = b'\xef\xbf\xbd@\xef\xbf\xbd@ \xef\xbf\xbd\xf2\xa5\xbb\xa8C\xef\xbf\xbd\xd1\xac\xd5\xbel\xef\xbf\xbdX\xef\xbf\xbdp'.decode('utf-8')
+        eps_index_heading = b'\xef\xbf\xbd@\xef\xbf\xbd@ \xef\xbf\xbd\xf2\xa5\xbb\xa8C\xef\xbf\xbd\xd1\xac\xd5\xbel\xef\xbf\xbdX\xef\xbf\xbdp'.decode(
+            'utf-8')
 
         if debug:
             write_page(response)
@@ -47,12 +49,15 @@ class FinancialReportSpider(scrapy.Spider):
             data = pd.read_html(response.body, skiprows=0, encoding='utf8')
         except ValueError:
             self.logger.warning('No table found')
-            self.write_eps_file(rows, co_id)
+            eps_path = self.write_eps_file(rows, co_id)
+            yield self.generate(co_id, eps_path)
             return
 
         if len(data) < 3:
+            eps_path = self.write_eps_file(rows, co_id)
+            yield self.generate(co_id, eps_path)
             self.logger.warning('No data found')
-            self.write_eps_file(rows, co_id)
+
             return
 
         df = data[2]
@@ -72,7 +77,8 @@ class FinancialReportSpider(scrapy.Spider):
 
         if not found:
             self.logger.warning('No eps found')
-            self.write_eps_file(rows, co_id)
+            eps_path = self.write_eps_file(rows, co_id)
+            yield self.generate(co_id, eps_path)
             return
 
         vals.append(eps)
@@ -83,7 +89,8 @@ class FinancialReportSpider(scrapy.Spider):
             next_year, next_season = self.get_previous_season(year, season)
             yield self.create_request(co_id, next_year, next_season, rows)
         else:
-            self.write_eps_file(rows, co_id)
+            eps_path = self.write_eps_file(rows, co_id)
+            yield self.generate(co_id, eps_path)
 
     def parse_new_ifrs(self, response, co_id, year, season, rows):
         if debug:
@@ -93,7 +100,8 @@ class FinancialReportSpider(scrapy.Spider):
             data = pd.read_html(response.body, skiprows=0, encoding='UTF-8')
         except ValueError:
             self.logger.warning('No table found')
-            self.write_eps_file(rows, co_id)
+            eps_path = self.write_eps_file(rows, co_id)
+            yield self.generate(co_id, eps_path)
             return
 
         df = data[1]
@@ -111,21 +119,11 @@ class FinancialReportSpider(scrapy.Spider):
 
         # FIXME: Should not happen
         if not found:
-            self.logger.warning('No eps found')
-            # self.write_eps_file(rows, co_id)
-            # self.parse_older_ifrs(response, co_id, year, season, rows)
-            # yield self.create_request(co_id, year, season, rows, self.parse_older_ifrs)
-
-            # FIXME: This not work. It doesn't get called
-            # self.parse_older_ifrs(response, co_id, year, season, rows)
-
-            # print(vals[3])
-
+            self.logger.critical('No eps found - but this should not happen')
             return
 
         print('vals: ', vals)
 
-        # yield { "eps": eps_path, }
         next_year, next_season = self.get_previous_season(year, season)
         rows.append(vals)
         yield self.create_request(co_id, next_year, next_season, rows)
@@ -144,3 +142,9 @@ class FinancialReportSpider(scrapy.Spider):
         eps_df = pd.DataFrame(rows, columns=["time", "eps"])
         eps_path = get_data_dir() + co_id + "-eps.csv"
         eps_df.to_csv(eps_path, index=False)
+
+        return eps_path
+
+    @staticmethod
+    def generate(co_id, eps_path):
+        return {'meta_data': get_meta_data("Time Series for EPS", "TW:" + co_id), 'eps': eps_path}

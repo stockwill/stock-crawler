@@ -1,3 +1,5 @@
+from time import gmtime, strftime
+
 data_dir = "data/"
 
 
@@ -11,3 +13,12 @@ def write_page(response):
     with open(filename, 'wb') as f:
         f.write(response.body)
     print("Write to file %s" % filename)
+
+
+def get_meta_data(info, co_id):
+    return {
+        "1. Information": info,
+        "2. Symbol": "TW:" + co_id,
+        "3. Last Refreshed": strftime("%Y-%m-%d %H:%M:%S", gmtime()),
+        "4. Time Zone": 'UTC',
+    }

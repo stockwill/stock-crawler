@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import pandas as pd
-from time import gmtime, strftime
 from .parse import reformat_html_for_table, format_time_at
 from .stocks import get_co_ids
-from .utils import write_page, get_data_dir
+from .utils import write_page, get_data_dir, get_meta_data
 
 debug = False
 
@@ -95,13 +94,6 @@ class StockSpider(scrapy.Spider):
         if debug:
             df.to_csv(get_data_dir() + co_id + "-dividend-full.csv", index=False)
 
-        meta_data = {
-            "1. Information": "Time Series for Dividend",
-            "2. Symbol": "TW:" + co_id,
-            "3. Last Refreshed": strftime("%Y-%m-%d %H:%M:%S", gmtime()),
-            "4. Time Zone": 'UTC',
-        }
-
         rows = []
         for index, row in df.iterrows():
             vals = []
@@ -127,6 +119,6 @@ class StockSpider(scrapy.Spider):
         dividend_df.to_csv(dividend_path, index=False)
 
         yield {
-            "meta_data": meta_data,
+            "meta_data": get_meta_data("Time Series for Dividend", "TW:" + co_id),
             "dividend": dividend_path,
         }
