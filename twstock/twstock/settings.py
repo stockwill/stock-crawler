@@ -8,6 +8,37 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import copy
+
+from colorlog import ColoredFormatter
+import scrapy.utils.log
+
+# https://stackoverflow.com/questions/42095184/scrapy-framework-colorize-logging
+color_formatter = ColoredFormatter(
+    (
+        '%(yellow)s[%(asctime)s]%(reset)s '
+        '%(log_color)s%(levelname)-7s%(reset)s '
+        '%(bold_purple)s [%(name)s %(funcName)s %(bold_purple)s:%(lineno)d%(reset)s] '
+        '%(white)s%(message)s%(reset)s'
+    ),
+    datefmt='%y-%m-%d %H:%M:%S',
+    log_colors={
+        'DEBUG': 'blue',
+        'INFO': 'bold_cyan',
+        'WARNING': 'red',
+        'ERROR': 'bg_bold_red',
+        'CRITICAL': 'red,bg_white',
+    }
+)
+
+_get_handler = copy.copy(scrapy.utils.log._get_handler)
+
+def _get_handler_custom(*args, **kwargs):
+    handler = _get_handler(*args, **kwargs)
+    handler.setFormatter(color_formatter)
+    return handler
+
+scrapy.utils.log._get_handler = _get_handler_custom
 
 BOT_NAME = 'twstock'
 

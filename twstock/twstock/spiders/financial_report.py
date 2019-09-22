@@ -15,7 +15,7 @@ class FinancialReportSpider(scrapy.Spider):
 
     def start_requests(self):
         for co_id in get_co_ids():
-            yield self.create_request(co_id, 2019, 2)
+            yield self.create_request(co_id, 2019, 3)
 
     def create_request(self, co_id, year, season):
         params = {
@@ -35,7 +35,12 @@ class FinancialReportSpider(scrapy.Spider):
         if debug:
             write_page(response)
 
-        data = pd.read_html(response.body, skiprows=0, encoding='UTF-8')
+        try:
+            data = pd.read_html(response.body, skiprows=0, encoding='UTF-8')
+        except ValueError:
+            self.logger.warning('No table found')
+            return
+
         df = data[1]
         if debug:
             df.to_csv(get_data_dir() + co_id + "-financial-full.csv", index=False)
