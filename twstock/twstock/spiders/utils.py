@@ -8,8 +8,12 @@ def get_data_dir():
 
 
 def write_page(response):
+    write_page_to(response, data_dir)
+
+
+def write_page_to(response, dir_path):
     page = response.url.split("/")[-1]
-    filename = data_dir + '%s.html' % page
+    filename = dir_path + '%s.html' % page
     with open(filename, 'wb') as f:
         f.write(response.body)
     print("Write to file %s" % filename)

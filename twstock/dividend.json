@@ -1,0 +1,11 @@
+[
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:1101", "3. Last Refreshed": "2019-09-23 15:38:22", "4. Time Zone": "UTC"}, "dividend": "dividend/1101-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:1102", "3. Last Refreshed": "2019-09-23 15:38:23", "4. Time Zone": "UTC"}, "dividend": "dividend/1102-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:1216", "3. Last Refreshed": "2019-09-23 15:38:24", "4. Time Zone": "UTC"}, "dividend": "dividend/1216-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:1301", "3. Last Refreshed": "2019-09-23 15:38:26", "4. Time Zone": "UTC"}, "dividend": "dividend/1301-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:1303", "3. Last Refreshed": "2019-09-23 15:38:27", "4. Time Zone": "UTC"}, "dividend": "dividend/1303-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:1326", "3. Last Refreshed": "2019-09-23 15:38:28", "4. Time Zone": "UTC"}, "dividend": "dividend/1326-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:1402", "3. Last Refreshed": "2019-09-23 15:38:29", "4. Time Zone": "UTC"}, "dividend": "dividend/1402-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:2002", "3. Last Refreshed": "2019-09-23 15:38:31", "4. Time Zone": "UTC"}, "dividend": "dividend/2002-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:2105", "3. Last Refreshed": "2019-09-23 15:38:32", "4. Time Zone": "UTC"}, "dividend": "dividend/2105-dividend.csv"},
+{"meta_data": {"1. Information": "Time Series for Dividend", "2. Symbol": "TW:2207", "3. Last Refreshed": "2019-09-23 15:38:34", "4. Time Zone": "UTC"}, "dividend": "dividend/2207-dividend.csv"}

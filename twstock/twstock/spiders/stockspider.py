@@ -119,6 +119,6 @@ class StockSpider(scrapy.Spider):
         dividend_df.to_csv(dividend_path, index=False)
 
         yield {
-            "meta_data": get_meta_data("Time Series for Dividend", "TW:" + co_id),
+            "meta_data": get_meta_data("Time Series for Dividend", co_id),
             "dividend": dividend_path,
         }

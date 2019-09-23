@@ -2,12 +2,13 @@
 import scrapy
 import pandas as pd
 from urllib import parse
-from .utils import write_page, get_data_dir, get_meta_data
+from .utils import write_page, get_meta_data
 from .stocks import get_co_ids
-from .parse import reformat_html_for_table
 
 debug = False
 follow = True
+
+output_dir = 'eps/'
 
 
 # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2019&SSEASON=2&REPORT_ID=C
@@ -63,7 +64,7 @@ class FinancialReportSpider(scrapy.Spider):
 
         df = data[2]
         if debug:
-            df.to_csv(get_data_dir() + co_id + "-financial-full-" + str(year) + "Q" + str(season) + ".csv", index=False)
+            df.to_csv(output_dir + co_id + "-financial-full-" + str(year) + "Q" + str(season) + ".csv", index=False)
 
         vals = ["%d Q%d" % (year, season)]
         if season == 4:
@@ -107,7 +108,7 @@ class FinancialReportSpider(scrapy.Spider):
 
         df = data[1]
         if debug:
-            df.to_csv(get_data_dir() + co_id + "-financial-full.csv", index=False)
+            df.to_csv(output_dir + co_id + "-financial-full.csv", index=False)
 
         vals = ["%d Q%d" % (year, season)]
         found = False
@@ -141,11 +142,11 @@ class FinancialReportSpider(scrapy.Spider):
     @staticmethod
     def write_eps_file(rows, co_id):
         eps_df = pd.DataFrame(rows, columns=["time", "eps"])
-        eps_path = get_data_dir() + co_id + "-eps.csv"
+        eps_path = output_dir + co_id + "-eps.csv"
         eps_df.to_csv(eps_path, index=False)
 
         return eps_path
 
     @staticmethod
     def generate(co_id, eps_path):
-        return {'meta_data': get_meta_data("Time Series for EPS", "TW:" + co_id), 'eps': eps_path}
+        return {'meta_data': get_meta_data("Time Series for EPS", co_id), 'eps': eps_path}
