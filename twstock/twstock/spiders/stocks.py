@@ -14,13 +14,22 @@ co_ids = ['1101', '1102', '1216', '1301', '1303', '1326', '1402', '2002', '2105'
 
 def get_co_ids():
     # return ['2330']
-    # return ['1101']
     # return ['1101', '2330', '2412']
     # return co_ids
 
-    for i in range(1101, 1110 + 1):
-        if i not in [1105, 1106, 1107]:
-            yield str(i)
+    # end: inclusive
+    l = [
+        # {'begin': 1101, 'end': 1110, 'skip': [1105, 1106, 1107]},
+        {'begin': 1201, 'end': 1240,
+         'skip': [1202, 1204, 1205, 1206, 1207, 1208, 1209, 1211, 1214, 1221, 1222, 1223, 1224, 1226, 1228, 1230, 1237,
+                  1238, 1239]}
+    ]
+
+    for category in l:
+        for i in range(category['begin'], category['end'] + 1):
+            if i not in category['skip']:
+                # pass
+                yield str(i)
 
 
 if __name__ == '__main__':

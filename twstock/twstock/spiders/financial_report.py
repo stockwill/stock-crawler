@@ -37,6 +37,9 @@ class FinancialReportSpider(scrapy.Spider):
                               callback=parse_method,
                               cb_kwargs=dict(co_id=co_id, year=year, season=season, rows=rows))
 
+    # TODO: 1240 no EPS
+    # TODO: 1235 EPS ()
+    # TODO: https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=1213&SYEAR=2019&SSEASON=2&REPORT_ID=C
     # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2018&SSEASON=2&REPORT_ID=C
     # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2012&SSEASON=2&REPORT_ID=C
     def parse_older_ifrs(self, response, co_id, year, season, rows):
