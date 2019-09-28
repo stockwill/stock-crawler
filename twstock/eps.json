@@ -1,0 +1,12 @@
+[
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1105", "3. Last Refreshed": "2019-09-28 07:53:58", "4. Time Zone": "UTC"}, "eps": "eps/1105-eps.csv"},
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1106", "3. Last Refreshed": "2019-09-28 07:54:07", "4. Time Zone": "UTC"}, "eps": "eps/1106-eps.csv"},
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1107", "3. Last Refreshed": "2019-09-28 07:54:18", "4. Time Zone": "UTC"}, "eps": "eps/1107-eps.csv"},
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1102", "3. Last Refreshed": "2019-09-28 08:30:25", "4. Time Zone": "UTC"}, "eps": "eps/1102-eps.csv"},
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1104", "3. Last Refreshed": "2019-09-28 08:30:51", "4. Time Zone": "UTC"}, "eps": "eps/1104-eps.csv"},
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1108", "3. Last Refreshed": "2019-09-28 08:31:04", "4. Time Zone": "UTC"}, "eps": "eps/1108-eps.csv"},
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1109", "3. Last Refreshed": "2019-09-28 08:31:19", "4. Time Zone": "UTC"}, "eps": "eps/1109-eps.csv"},
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1110", "3. Last Refreshed": "2019-09-28 08:31:30", "4. Time Zone": "UTC"}, "eps": "eps/1110-eps.csv"},
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1101", "3. Last Refreshed": "2019-09-28 08:31:42", "4. Time Zone": "UTC"}, "eps": "eps/1101-eps.csv"},
+{"meta_data": {"1. Information": "Time Series for EPS", "2. Symbol": "TW:1103", "3. Last Refreshed": "2019-09-28 08:31:54", "4. Time Zone": "UTC"}, "eps": "eps/1103-eps.csv"}
+]

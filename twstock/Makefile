@@ -1,8 +1,8 @@
-.PHONY: all genspider stock dividend
+.PHONY: all genspider stock eps dividend
 
 RM=rm -f
 
-all: dividend 
+all: eps
 
 genspider:
 	# scrapy genspider stock mops.twse.com.tw/mops/web/t146sb05
@@ -15,10 +15,10 @@ stock:
 	scrapy crawl stock -o $(STOCK_JSON)
 
 
-FINANCIAL_JSON=financial.json
-financial:
-	$(RM) $(FINANCIAL_JSON)
-	scrapy crawl financial_report -o $(FINANCIAL_JSON)
+EPS_JSON=eps.json
+eps:
+	$(RM) $(EPS_JSON)
+	scrapy crawl financial_report -o $(EPS_JSON)
 
 DIVIDEND_JSON=dividend.json
 dividend:
