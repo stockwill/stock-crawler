@@ -113,10 +113,13 @@ class FinancialReportSpider(scrapy.Spider):
         if debug:
             df.to_csv(output_dir + co_id + "-financial-full.csv", index=False)
 
+        total_basic_earnings_per_share_s = b'\xef\xbf\xbd@\xef\xbf\xbd\xf2\xa5\xbb\xa8C\xef\xbf\xbd\xd1\xac\xd5\xbel\xef\xbf\xbdX\xef\xbf\xbdp\xef\xbf\xbd@Total basic earnings per share'.decode('utf-8')
+        total_primary_earnings_per_share_s = b'\xef\xbf\xbd@\xef\xbf\xbd\xf2\xa5\xbb\xa8C\xef\xbf\xbd\xd1\xac\xd5\xbel\xef\xbf\xbdX\xef\xbf\xbdp\xef\xbf\xbd@Total primary earnings per share'.decode('utf-8')
         vals = ["%d Q%d" % (year, season)]
         found = False
         for index, row in df.iterrows():
-            if row[df.columns[0]] == 9750.0:
+            # print('row: ', row[df.columns[1]], " data: ", row[df.columns[2]], " row in utf-8: ", row[df.columns[1]].encode('utf-8'))
+            if row[df.columns[1]] == total_basic_earnings_per_share_s or row[df.columns[1]] == total_primary_earnings_per_share_s:
                 eps = row[df.columns[2]]
                 vals.append(eps)
                 found = True
@@ -131,7 +134,8 @@ class FinancialReportSpider(scrapy.Spider):
 
         next_year, next_season = self.get_previous_season(year, season)
         rows.append(vals)
-        yield self.create_request(co_id, next_year, next_season, rows)
+        if follow:
+            yield self.create_request(co_id, next_year, next_season, rows)
 
     def parse(self, response):
         pass
