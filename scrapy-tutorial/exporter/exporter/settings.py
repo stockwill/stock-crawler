@@ -66,6 +66,7 @@ ROBOTSTXT_OBEY = True
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'exporter.pipelines.ExporterPipeline': 300,
+    'exporter.pipelines.AuthorJSONExportPipeline': 300,
     'exporter.pipelines.FanExportPipeline': 600,
 }
 
