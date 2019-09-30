@@ -13,13 +13,13 @@ co_ids = ['1101', '1102', '1216', '1301', '1303', '1326', '1402', '2002', '2105'
 # https://www.taiwanindex.com.tw/index/index/TW50
 # https://www.twse.com.tw/zh/
 
-def get_co_ids3():
-    # return ['2330']
-    return ['2801']
+def get_co_ids():
+    return ['2330']
+    # return ['2801']
     # return co_ids
 
 # See https://www.twse.com.tw/zh/listed/listingProfile
-def get_co_ids():
+def get_co_ids2():
     l = [
         # 2807
         {'cat': '金融保險', 'ids': [2801, 2809, 2812, 2816, 2820, 2823, 2827, 2831, 2832, 2833, 2834, 2836, 2837, 2838,

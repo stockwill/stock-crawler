@@ -95,9 +95,10 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 1
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'twstock.pipelines.TwstockPipeline': 300,
-#}
+ITEM_PIPELINES = {
+    # 'twstock.pipelines.TwstockPipeline': 300,
+    'twstock.exporters.eps_exporter.EPSJsonExportPipeline': 1,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

@@ -20,14 +20,15 @@ class FinancialReportSpider(scrapy.Spider):
 
     def start_requests(self):
         for co_id in get_co_ids():
-            yield self.create_request(co_id, 2019, 2, [], True)  # original
-            # yield self.create_request(co_id, 2018, 3, [])
-            # yield self.create_request(co_id, 2013, 1, [])
+            # yield self.create_request(co_id, 2019, 2, True)  # original
+            yield self.create_request(co_id, 2019, 2, False)
+            # yield self.create_request(co_id, 2018, 3)
+            # yield self.create_request(co_id, 2013, 1)
 
-    def create_request(self, co_id, year, season, rows, follow):
-        return self.create_request_internal(co_id, year, season, rows, follow, 'C')
+    def create_request(self, co_id, year, season, follow):
+        return self.create_request_internal(co_id, year, season, follow, 'C')
 
-    def create_request_internal(self, co_id, year, season, rows, follow, report_id):
+    def create_request_internal(self, co_id, year, season, follow, report_id):
         params = {
             'step': 1,
             'CO_ID': co_id,
@@ -39,49 +40,42 @@ class FinancialReportSpider(scrapy.Spider):
         # print('url: ', url)
         return scrapy.Request(url=url,
                               callback=self.response_handler,
-                              cb_kwargs=dict(co_id=co_id, year=year, season=season, rows=rows, follow=follow,
+                              cb_kwargs=dict(co_id=co_id, year=year, season=season, follow=follow,
                                              report_id=report_id))
 
-    def response_handler(self, response, co_id, year, season, rows, follow, report_id):
+    def response_handler(self, response, co_id, year, season, follow, report_id):
         try:
             # I just try to flatten the alternative request solutions ...
             try:
-                new_rows = self.parse_new_ifrs(response, co_id, year, season, rows)
+                yield self.parse_new_ifrs(response, co_id, year, season)
                 raise Done
             except ValueError:
                 pass
             try:
-                new_rows = self.parse_older_ifrs(response, co_id, year, season, rows)
+                yield self.parse_older_ifrs(response, co_id, year, season)
                 raise Done
             except ValueError:
                 pass
 
             if report_id == 'C':
-                yield self.create_request_internal(co_id, year, season, rows, follow, 'A')
+                yield self.create_request_internal(co_id, year, season, follow, 'A')
             else:
                 follow = False
                 raise Done
-            # follow = False
-            # raise Done
-
-            # eps_path = self.write_eps_file(rows, co_id)
-            # yield self.generate(co_id, eps_path)
-            # return
 
         except Done:
             if follow:
                 next_year, next_season = self.get_previous_season(year, season)
-                yield self.create_request(co_id, next_year, next_season, new_rows, follow)
+                yield self.create_request(co_id, next_year, next_season, follow)
             else:
-                eps_path = self.write_eps_file(rows, co_id)
-                yield self.generate(co_id, eps_path)
+                pass # Finished
 
     # TODO: 1240 no EPS
     # TODO: 1235 EPS ()
     # TODO: https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=1213&SYEAR=2019&SSEASON=2&REPORT_ID=C
     # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2018&SSEASON=2&REPORT_ID=C
     # https://mops.twse.com.tw/server-java/t164sb01?step=1&CO_ID=2330&SYEAR=2012&SSEASON=2&REPORT_ID=C
-    def parse_older_ifrs(self, response, co_id, year, season, rows):
+    def parse_older_ifrs(self, response, co_id, year, season):
         eps_index_heading = b'\xef\xbf\xbd@\xef\xbf\xbd@ \xef\xbf\xbd\xf2\xa5\xbb\xa8C\xef\xbf\xbd\xd1\xac\xd5\xbel\xef\xbf\xbdX\xef\xbf\xbdp'.decode(
             'utf-8')
 
@@ -94,13 +88,8 @@ class FinancialReportSpider(scrapy.Spider):
         except ValueError:
             self.logger.warning('No table found')
             raise ValueError
-            # eps_path = self.write_eps_file(rows, co_id)
-            # yield self.generate(co_id, eps_path)
-            # return
 
         if len(data) < 3:
-            # eps_path = self.write_eps_file(rows, co_id)
-            # yield self.generate(co_id, eps_path)
             self.logger.warning('No data found')
             raise ValueError
 
@@ -108,37 +97,20 @@ class FinancialReportSpider(scrapy.Spider):
         if debug:
             df.to_csv(output_dir + co_id + "-financial-full-" + str(year) + "Q" + str(season) + ".csv", index=False)
 
-        vals = ["%d Q%d" % (year, season)]
+        time = "%d Q%d" % (year, season)
         if season == 4:
-            vals = ["%d" % year]
-        found = False
+            time = "%d" % year
+
         for index, row in df.iterrows():
             # self.logger.debug('row[%d]: %s' % (index, str(row[df.columns[0]])))
             if row[df.columns[0]] == eps_index_heading:
                 eps = row[df.columns[1]]
-                found = True
-                break
+                return self.get_json_fields(co_id, time, eps)
 
-        if not found:
-            self.logger.warning('No eps found')
-            # eps_path = self.write_eps_file(rows, co_id)
-            # yield self.generate(co_id, eps_path)
-            # return
-            raise ValueError
+        self.logger.warning('No eps found')
+        raise ValueError
 
-        vals.append(eps)
-        print('vals: ', vals)
-        rows.append(vals)
-
-        return rows
-        # if follow:
-        #    next_year, next_season = self.get_previous_season(year, season)
-        #    yield self.create_request(co_id, next_year, next_season, rows)
-        # else:
-        #    eps_path = self.write_eps_file(rows, co_id)
-        #    yield self.generate(co_id, eps_path)
-
-    def parse_new_ifrs(self, response, co_id, year, season, rows):
+    def parse_new_ifrs(self, response, co_id, year, season):
         if debug:
             write_page(response)
 
@@ -146,9 +118,6 @@ class FinancialReportSpider(scrapy.Spider):
             data = pd.read_html(response.body, skiprows=0, encoding='UTF-8')
         except ValueError:
             self.logger.warning('No table found')
-            # eps_path = self.write_eps_file(rows, co_id)
-            # yield self.generate(co_id, eps_path)
-            # return
             raise ValueError
         if len(data) < 2:
             raise ValueError
@@ -161,30 +130,15 @@ class FinancialReportSpider(scrapy.Spider):
             'utf-8')
         total_primary_earnings_per_share_s = b'\xef\xbf\xbd@\xef\xbf\xbd\xf2\xa5\xbb\xa8C\xef\xbf\xbd\xd1\xac\xd5\xbel\xef\xbf\xbdX\xef\xbf\xbdp\xef\xbf\xbd@Total primary earnings per share'.decode(
             'utf-8')
-        vals = ["%d Q%d" % (year, season)]
-        found = False
+        time = "%d Q%d" % (year, season)
         for index, row in df.iterrows():
             # print('row: ', row[df.columns[1]], " data: ", row[df.columns[2]], " row in utf-8: ", row[df.columns[1]].encode('utf-8'))
-            if row[df.columns[1]] == total_basic_earnings_per_share_s or row[
-                df.columns[1]] == total_primary_earnings_per_share_s:
+            if row[df.columns[1]] == total_basic_earnings_per_share_s \
+                    or row[df.columns[1]] == total_primary_earnings_per_share_s:
                 eps = row[df.columns[2]]
-                vals.append(eps)
-                found = True
-                break
+                return self.get_json_fields(co_id, time, eps)
 
-        # FIXME: Should not happen
-        if not found:
-            # self.logger.critical('No eps found - but this should not happen')
-            # return
-            raise ValueError
-
-        print('vals: ', vals)
-
-        next_year, next_season = self.get_previous_season(year, season)
-        rows.append(vals)
-        # if follow:
-        #    yield self.create_request(co_id, next_year, next_season, rows)
-        return rows
+        raise ValueError
 
     def parse(self, response):
         pass
@@ -196,12 +150,10 @@ class FinancialReportSpider(scrapy.Spider):
         return year, season - 1
 
     @staticmethod
-    def write_eps_file(rows, co_id):
-        eps_df = pd.DataFrame(rows, columns=["time", "eps"])
-        eps_path = output_dir + co_id + "-eps.csv"
-        eps_df.to_csv(eps_path, index=False)
-
-        return eps_path
+    def get_json_fields(co_id, time, eps):
+        result = {"co_id": co_id, "time": time, "eps": eps}
+        print(result)
+        return result
 
     @staticmethod
     def generate(co_id, eps_path):
