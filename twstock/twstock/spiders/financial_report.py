@@ -9,6 +9,12 @@ debug = False
 output_dir = 'eps/'
 
 
+class EPSItem(scrapy.Item):
+    time = scrapy.Field()
+    eps = scrapy.Field()
+    co_id = scrapy.Field()
+
+
 class Done(Exception):
     pass
 
@@ -20,8 +26,8 @@ class FinancialReportSpider(scrapy.Spider):
 
     def start_requests(self):
         for co_id in get_co_ids():
-            # yield self.create_request(co_id, 2019, 2, True)  # original
-            yield self.create_request(co_id, 2019, 2, False)
+            yield self.create_request(co_id, 2019, 2, True)  # original
+            # yield self.create_request(co_id, 2019, 2, False)
             # yield self.create_request(co_id, 2018, 3)
             # yield self.create_request(co_id, 2013, 1)
 
@@ -68,7 +74,7 @@ class FinancialReportSpider(scrapy.Spider):
                 next_year, next_season = self.get_previous_season(year, season)
                 yield self.create_request(co_id, next_year, next_season, follow)
             else:
-                pass # Finished
+                pass  # Finished
 
     # TODO: 1240 no EPS
     # TODO: 1235 EPS ()
@@ -105,7 +111,7 @@ class FinancialReportSpider(scrapy.Spider):
             # self.logger.debug('row[%d]: %s' % (index, str(row[df.columns[0]])))
             if row[df.columns[0]] == eps_index_heading:
                 eps = row[df.columns[1]]
-                return self.get_json_fields(co_id, time, eps)
+                return self.get_eps_item(co_id, time, eps)
 
         self.logger.warning('No eps found')
         raise ValueError
@@ -136,7 +142,7 @@ class FinancialReportSpider(scrapy.Spider):
             if row[df.columns[1]] == total_basic_earnings_per_share_s \
                     or row[df.columns[1]] == total_primary_earnings_per_share_s:
                 eps = row[df.columns[2]]
-                return self.get_json_fields(co_id, time, eps)
+                return self.get_eps_item(co_id, time, eps)
 
         raise ValueError
 
@@ -150,10 +156,13 @@ class FinancialReportSpider(scrapy.Spider):
         return year, season - 1
 
     @staticmethod
-    def get_json_fields(co_id, time, eps):
-        result = {"co_id": co_id, "time": time, "eps": eps}
-        print(result)
-        return result
+    def get_eps_item(co_id, time, eps):
+        item = EPSItem()
+        item['co_id'] = co_id
+        item['time'] = time
+        item['eps'] = eps
+        print(item)
+        return item
 
     @staticmethod
     def generate(co_id, eps_path):
