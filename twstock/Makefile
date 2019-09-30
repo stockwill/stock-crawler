@@ -2,7 +2,7 @@
 
 RM=rm -f
 
-all: eps
+all: dividend
 
 genspider:
 	# scrapy genspider stock mops.twse.com.tw/mops/web/t146sb05

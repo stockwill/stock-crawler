@@ -29,12 +29,22 @@ class EPSJsonExportPipeline(object):
         exporter.export_item(item)
         return item
 
-class EPSCSVExportPipeline(object):
+
+class CSVExportPipeline(object):
+
+    def __init__(self):
+        self.output_dir = "data/"
+        self.filename_suffix = "-file"
+        self.eps_exporter = {}
 
     def open_spider(self, spider):
+        self.output_dir = getattr(spider, 'output_dir')
+        self.filename_suffix = getattr(spider, 'filename_suffix')
+        print('output_dir is: ', self.output_dir, ' filename_suffix: ', self.filename_suffix)
         self.eps_exporter = {}
 
     def close_spider(self, spider):
+
         for exporter in self.eps_exporter.values():
             exporter['exporter'].finish_exporting()
             exporter['file'].close()
@@ -42,7 +52,7 @@ class EPSCSVExportPipeline(object):
     def _exporter_for_item(self, item):
         co_id = item['co_id']
         if co_id not in self.eps_exporter:
-            output_file_name = 'eps/{}-eps.csv'.format(co_id)
+            output_file_name = '{}/{}{}.csv'.format(self.output_dir, co_id, self.filename_suffix)
             f = open(output_file_name, 'wb')
             print('write to file: ', output_file_name)
             exporter = CsvItemExporter(f)

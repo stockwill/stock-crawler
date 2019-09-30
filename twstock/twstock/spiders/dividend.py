@@ -2,16 +2,32 @@
 import scrapy
 import pandas as pd
 from .parse import format_time_at
-from .utils import write_page_to, get_meta_data
+from .utils import write_page_to
 from .stocks import get_co_ids
 
 debug = False
-output_dir = "dividend/"
+
+
+class DividendItem(scrapy.Item):
+    time = scrapy.Field()
+    at = scrapy.Field()
+    cash = scrapy.Field()
+    stock = scrapy.Field()
+    co_id = scrapy.Field()
 
 
 class DividendSpider(scrapy.Spider):
     name = 'dividend'
     allowed_domains = ['mops.twse.com.tw/mops/web/t05st09_2']
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'twstock.exporters.csv_exporter.CSVExportPipeline': 1,
+        }
+    }
+
+    # Exporter settings
+    output_dir = "dividend/"
+    filename_suffix = "-dividend"
 
     def parse(self, response):
         pass
@@ -46,7 +62,7 @@ class DividendSpider(scrapy.Spider):
 
     def parse_dividend(self, response, co_id):
         if debug:
-            write_page_to(response, output_dir)
+            write_page_to(response, self.output_dir)
 
         try:
             data = pd.read_html(response.body, skiprows=0, encoding='utf8')
@@ -56,7 +72,7 @@ class DividendSpider(scrapy.Spider):
 
         df = data[2]
         if debug:
-            df.to_csv(output_dir + co_id + "-dividend-full.csv", index=False)
+            df.to_csv(self.output_dir + co_id + "-dividend-full.csv", index=False)
 
         if debug:
             print('index: ', df.index)
@@ -79,24 +95,18 @@ class DividendSpider(scrapy.Spider):
                   {'name': 'cash', 'transform': lambda x: x},
                   {'name': 'stock', 'transform': lambda x: x}]
 
-        rows = []
         for index, row in result.iterrows():
-            vals = []
-
+            val = {'co_id': co_id}
             for pos_col, col in enumerate(wanted):
                 data = row[result.columns[pos_col]]
-                vals.append(wanted[pos_col]['transform'](data))
-            rows.append(vals)
+                name = wanted[pos_col]['name']
+                val[name] = wanted[pos_col]['transform'](data)
+            yield self.get_dividend_item(val)
 
-        columns = []
-        for w in wanted:
-            columns.append(w['name'])
+    @staticmethod
+    def get_dividend_item(d):
+        item = DividendItem()
+        for k, v in d.items():
+            item[k] = v
 
-        dividend_df = pd.DataFrame(rows, columns=columns)
-        dividend_path = output_dir + co_id + "-dividend.csv"
-        dividend_df.to_csv(dividend_path, index=False)
-
-        yield {
-            "meta_data": get_meta_data("Time Series for Dividend", co_id),
-            "dividend": dividend_path,
-        }
+        return item

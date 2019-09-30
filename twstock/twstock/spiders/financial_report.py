@@ -6,8 +6,6 @@ from .utils import write_page, get_meta_data
 from .stocks import get_co_ids
 
 debug = False
-output_dir = 'eps/'
-
 
 class EPSItem(scrapy.Item):
     time = scrapy.Field()
@@ -23,6 +21,16 @@ class Done(Exception):
 class FinancialReportSpider(scrapy.Spider):
     name = 'financial_report'
     allowed_domains = ['mops.twse.com.tw']
+    # https://stackoverflow.com/questions/8372703/how-can-i-use-different-pipelines-for-different-spiders-in-a-single-scrapy-proje
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'twstock.exporters.csv_exporter.CSVExportPipeline': 1,
+        }
+    }
+
+    # Exporter settings
+    output_dir = "eps/"
+    filename_suffix = "-eps"
 
     def start_requests(self):
         for co_id in get_co_ids():
@@ -101,7 +109,7 @@ class FinancialReportSpider(scrapy.Spider):
 
         df = data[2]
         if debug:
-            df.to_csv(output_dir + co_id + "-financial-full-" + str(year) + "Q" + str(season) + ".csv", index=False)
+            df.to_csv(self.output_dir + co_id + "-financial-full-" + str(year) + "Q" + str(season) + ".csv", index=False)
 
         time = "%d Q%d" % (year, season)
         if season == 4:
@@ -130,7 +138,7 @@ class FinancialReportSpider(scrapy.Spider):
 
         df = data[1]
         if debug:
-            df.to_csv(output_dir + co_id + "-financial-full.csv", index=False)
+            df.to_csv(self.output_dir + co_id + "-financial-full.csv", index=False)
 
         total_basic_earnings_per_share_s = b'\xef\xbf\xbd@\xef\xbf\xbd\xf2\xa5\xbb\xa8C\xef\xbf\xbd\xd1\xac\xd5\xbel\xef\xbf\xbdX\xef\xbf\xbdp\xef\xbf\xbd@Total basic earnings per share'.decode(
             'utf-8')
