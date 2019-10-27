@@ -10,7 +10,6 @@ debug = False
 
 class DividendItem(scrapy.Item):
     time = scrapy.Field()
-    at = scrapy.Field()
     cash = scrapy.Field()
     stock = scrapy.Field()
     co_id = scrapy.Field()
@@ -77,21 +76,16 @@ class DividendSpider(scrapy.Spider):
         if debug:
             print('index: ', df.index)
             print('column: ', df.columns)
-        df0 = df['股利所屬年(季)度']
-        df1 = df['董事會決議(擬議)股利分派日']
-        df2 = df['股東配發內容']['盈餘分配之現金股利(元/股)']
-        df3 = df['股東配發內容']['盈餘轉增資配股(元/股)']
+        dfs = [df['股利所屬年(季)度'], df['股東配發內容']['盈餘分配之現金股利(元/股)'], df['股東配發內容']['盈餘轉增資配股(元/股)']]
         if debug:
-            print('sample 0: ', df0)
-            print('sample 1: ', df1)
-            print('sample 2: ', df2)
-            print('sample 3: ', df3)
-        result = pd.concat([df0, df1, df2, df3], axis=1)
+            print('sample 0: ', dfs[0])
+            print('sample 1: ', dfs[1])
+            print('sample 2: ', dfs[2])
+        result = pd.concat(dfs, axis=1)
         if debug:
             print('result: ', result)
 
         wanted = [{'name': 'time', 'transform': format_time_at},
-                  {'name': 'at', 'transform': lambda x: x},
                   {'name': 'cash', 'transform': lambda x: x},
                   {'name': 'stock', 'transform': lambda x: x}]
 
