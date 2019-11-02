@@ -12,14 +12,14 @@ co_ids = ['1101', '1102', '1216', '1301', '1303', '1326', '1402', '2002', '2105'
 # https://www.taiwanindex.com.tw/index/index/TW50
 # https://www.twse.com.tw/zh/
 
-def get_co_ids2():
+def get_co_ids():
     # return ['1101']
-    # return ['2314']
-    return co_ids
+    return ['2330']
+    # return co_ids
 
 
 # See https://www.twse.com.tw/zh/listed/listingProfile
-def get_co_ids():
+def get_co_ids2():
     category_list = [
         {'cat': '通信網路業', 'ids': ['2314', '2321', '2332', '2345', '2391', '2412', '2419', '2432', '2439', '2444',
                                 '2450', '2455', '2485', '2494', '2498', '3025', '3027', '3045', '3047', '3062', '3311',
