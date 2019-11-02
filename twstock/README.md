@@ -7,7 +7,10 @@ source ./venv/bin/activate
 
 # TODO
 
-EPS for 2207
+## Dividend Date
+
+1. Multiple dividend in one year
+2. Stock and cash in different date 
 
 [除權息日](https://mops.twse.com.tw/mops/web/t108sb19_q1)
 

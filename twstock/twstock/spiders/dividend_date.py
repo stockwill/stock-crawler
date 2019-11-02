@@ -27,6 +27,7 @@ class DividendDateSpider(scrapy.Spider):
     def parse(self, response):
         pass
 
+    # https://mops.twse.com.tw/mops/web/t108sb19_q1
     def start_requests(self):
         for co_id in get_co_ids():
             formdata = {
@@ -42,12 +43,12 @@ class DividendDateSpider(scrapy.Spider):
                 'isnew': 'false',
                 'firstin': 'true',
             }
-            return [scrapy.FormRequest(
+            yield scrapy.FormRequest(
                 url='https://mops.twse.com.tw/mops/web/ajax_t108sb19',
                 formdata=formdata,
                 callback=self.parse_for_button,
                 cb_kwargs=dict(co_id=co_id)
-            )]
+            )
 
     def parse_for_button(self, response, co_id):
         buttons = response.xpath('//input[@value="詳細資料"]')
