@@ -38,7 +38,7 @@ class DailyStockPriceSpider(scrapy.Spider):
     def create_request_internal(self, co_id, year, month):
         date = "{0:d}{1:02d}01".format(year, month)
 
-        url = 'https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=csv&date=' + date + '&stockNo=' + str(1101)
+        url = 'https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=csv&date=' + date + '&stockNo=' + str(co_id)
         return scrapy.http.Request(
             url,
             callback=self.parse_csv,

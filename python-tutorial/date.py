@@ -3,13 +3,16 @@ import unittest
 import time
 import datetime
 import parse
+import numpy
 
 def parse_int(val_str):
     return int(val_str.replace(',', ''))
 
 
 def parse_float(val_str):
-    return float(val_str.replace(',', ''))
+    if isinstance(val_str, str):
+        return float(val_str.replace(',', ''))
+    return val_str.item()
 
 
 # https://stackoverflow.com/questions/1697815/how-do-you-convert-a-time-struct-time-object-into-a-datetime-object
@@ -33,6 +36,8 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(33282120, parse_int("33,282,120"))
         self.assertEqual(5090.5	, parse_float("5,090.5"))
         self.assertEqual(30	, parse_float("+30.0"))
+        self.assertEqual(-30.5 , parse_float(numpy.float64(-30.5)))
+        self.assertEqual(-30.5	, parse_float(numpy.float32(-30.5)))
         self.assertEqual(-150.5	, parse_float("-150.5"))
 
 

@@ -20,7 +20,9 @@ def parse_int(val_str):
 
 
 def parse_float(val_str):
-    return val_str.item() #float(val_str.replace(',', ''))
+    if isinstance(val_str, str):
+        return float(val_str.replace(',', ''))
+    return val_str.item()
 
 
 def parse_time(time_str):
@@ -69,7 +71,7 @@ class StockPriceMySQLPipeline(object):
                 print("Database does not exist")
             else:
                 print(err)
-                logging.log(logging.FATAL, "Something went wrong: {}".format(err))
+                logging.log(logging.FATAL, "Fail to connect db: {}".format(err))
 
         else:
             print("Every thing is fine")
@@ -87,7 +89,10 @@ class StockPriceMySQLPipeline(object):
             return item
 
         if isinstance(item, DailyStockPriceItem):
-            self.handle_daily_stock_price_item(item)
+            try:
+                self.handle_daily_stock_price_item(item)
+            except Exception as err:
+                logging.log(logging.FATAL, "Error in handle: {}".format(err))
 
         return item
 
@@ -116,10 +121,7 @@ class StockPriceMySQLPipeline(object):
         d['highest_price'] = parse_float(d['highest_price'])
         d['lowest_price'] = parse_float(d['lowest_price'])
         d['closing_price'] = parse_float(d['closing_price'])
-        #print('change: ', d['price_change'])
         d['price_change'] = parse_float(d['price_change'])
-        #print('change: ', d['change'])
-        #d['change'] = 100.0
 
         d['transaction'] = parse_int(d['transaction'])
 
@@ -131,4 +133,4 @@ class StockPriceMySQLPipeline(object):
             self.cnx.commit()
         except mysql.connector.Error as err:
             self.cnx.rollback()
-            print("Something went wrong: {}".format(err))
+            print("Fail to commit: {}".format(err))
