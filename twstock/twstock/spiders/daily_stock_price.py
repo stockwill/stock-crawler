@@ -3,39 +3,23 @@ import scrapy
 import pandas as pd
 import datetime
 from .stocks import get_co_ids
-
+from twstock.items import DailyStockPriceItem
 
 # https://stackoverflow.com/questions/22604564/create-pandas-dataframe-from-a-string
 from io import StringIO
 
 debug = False
 
-
-# https://en.wikipedia.org/wiki/Candlestick_chart
-# https://www.twse.com.tw/zh/page/trading/exchange/STOCK_DAY.html
-class DailyStockPriceItem(scrapy.Item):
-    date = scrapy.Field()  # 日期
-    total_trade_stocks = scrapy.Field()  # 成交股數
-    total_trade_dollar = scrapy.Field()  # 成交金額
-    open = scrapy.Field()  # 開盤價
-    high = scrapy.Field()  # 最高價
-    low = scrapy.Field()  # 最低價
-    close = scrapy.Field()  # 收盤價
-    difference_percentage = scrapy.Field()  # 漲跌價差
-    total_trade_count = scrapy.Field()  # 成交筆數
-    co_id = scrapy.Field()
-
-
 class DailyStockPriceSpider(scrapy.Spider):
     name = 'daily_stock_price'
     allowed_domains = ['www.twse.com.tw']
     start_urls = ['http://www.twse.com.tw/']
 
-    custom_settings = {
-        'ITEM_PIPELINES': {
-            'twstock.exporters.csv_exporter.CSVExportPipeline': 1,
-        }
-    }
+    #custom_settings = {
+    #    'ITEM_PIPELINES': {
+    #        'twstock.exporters.csv_exporter.CSVExportPipeline': 1,
+    #    }
+    #}
 
     # Exporter settings
     output_dir = "price/"
@@ -83,14 +67,14 @@ class DailyStockPriceSpider(scrapy.Spider):
 
         # date_index = b'\xa4\xe9\xb4\xc1'.decode('big5') # you can see it in Chinese
         wants = [{'index': b'\\xa4\\xe9\\xb4\\xc1', 'pos': -1, 'name': 'date'},
-                 {'index': b'\\xa6\\xa8\\xa5\\xe6\\xaa\\xd1\\xbc\\xc6', 'pos': -1, 'name': 'total_trade_stocks'},
-                 {'index': b'\\xa6\\xa8\\xa5\\xe6\\xaa\\xf7\\xc3B', 'pos': -1, 'name': 'total_trade_dollar'},
-                 {'index': b'\\xb6}\\xbdL\\xbb\\xf9', 'pos': -1, 'name': 'open'},
-                 {'index': b'\\xb3\\xcc\\xb0\\xaa\\xbb\\xf9', 'pos': -1, 'name': 'high'},
-                 {'index': b'\\xb3\\xcc\\xa7C\\xbb\\xf9', 'pos': -1, 'name': 'low'},
-                 {'index': b'\\xa6\\xac\\xbdL\\xbb\\xf9', 'pos': -1, 'name': 'close'},
-                 {'index': b'\\xba\\xa6\\xb6^\\xbb\\xf9\\xaet', 'pos': -1, 'name': 'difference_percentage'},
-                 {'index': b'\\xa6\\xa8\\xa5\\xe6\\xb5\\xa7\\xbc\\xc6', 'pos': -1, 'name': 'total_trade_count'}
+                 {'index': b'\\xa6\\xa8\\xa5\\xe6\\xaa\\xd1\\xbc\\xc6', 'pos': -1, 'name': 'trade_volume'},
+                 {'index': b'\\xa6\\xa8\\xa5\\xe6\\xaa\\xf7\\xc3B', 'pos': -1, 'name': 'trade_value'},
+                 {'index': b'\\xb6}\\xbdL\\xbb\\xf9', 'pos': -1, 'name': 'opening_price'},
+                 {'index': b'\\xb3\\xcc\\xb0\\xaa\\xbb\\xf9', 'pos': -1, 'name': 'highest_price'},
+                 {'index': b'\\xb3\\xcc\\xa7C\\xbb\\xf9', 'pos': -1, 'name': 'lowest_price'},
+                 {'index': b'\\xa6\\xac\\xbdL\\xbb\\xf9', 'pos': -1, 'name': 'closing_price'},
+                 {'index': b'\\xba\\xa6\\xb6^\\xbb\\xf9\\xaet', 'pos': -1, 'name': 'price_change'},
+                 {'index': b'\\xa6\\xa8\\xa5\\xe6\\xb5\\xa7\\xbc\\xc6', 'pos': -1, 'name': 'transaction'}
                  ]
         for i in range(len(df.columns)):
             now = bytes(df.columns[i], encoding='utf-8')

@@ -95,9 +95,9 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 1
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-    # 'twstock.pipelines.TwstockPipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'twstock.pipelines.StockPriceMySQLPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
@@ -119,3 +119,10 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 1
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = 'example'
+MYSQL_HOST = '127.0.0.1'
+MYSQL_DATABASE = 'stock'
+MYSQL_PORT = '3306'

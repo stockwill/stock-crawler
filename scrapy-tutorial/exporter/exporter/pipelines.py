@@ -7,7 +7,6 @@
 from .exporters import FanItemExporter
 from scrapy.exporters import JsonItemExporter
 
-
 class ExporterPipeline(object):
     def process_item(self, item, spider):
         return item
