@@ -1,4 +1,9 @@
+# Install virtualenv
 
+$ pip3 install --user virtualenv
+  The script virtualenv is installed in '/Users/stockwill/Library/Python/3.7/bin' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+$ /Users/stockwill/Library/Python/3.7/bin/virtualenv -p python3 venv
 
 # Fix Python Execution Error
 

@@ -6,7 +6,7 @@ all:
 # https://gist.github.com/pandafulmanda/730a9355e088a9970b18275cb9eadef3
 .PHONY: venv
 venv: 
-	virtualenv -p python3.7 venv
+	virtualenv -p python3 venv
 
 install:
 	# pip install scrapy
