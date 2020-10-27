@@ -5,7 +5,7 @@ beautifulsoup4==4.8.0
 cffi==1.12.3
 colorlog==4.0.2
 constantly==15.1.0
-cryptography==2.7
+cryptography==3.2
 cssselect==1.1.0
 html5lib==1.0.1
 hyperlink==19.0.0
